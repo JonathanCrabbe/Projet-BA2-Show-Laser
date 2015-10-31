@@ -4,7 +4,7 @@
 
 bps = 16;       % bits per sample (précision des samples)
 sps = 8000;     % sample rate (samples/s)
-nsecs = 9;      % durée du son
+nsecs = 10;      % durée du son
 
 nsamples = sps*nsecs;  %Pas d'échantillonage 
 
