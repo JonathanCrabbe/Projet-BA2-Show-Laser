@@ -11,7 +11,14 @@ nsamples = sps*nsecs;  %Pas d'échantillonage
 time = linspace(0, nsecs, nsamples); %Création de l'axe temps
 
 freq = 440 ;
-vecteur = [sin(time*2*pi*freq) ; ones(1,nsamples)];  %Création du signal voulu
+
+signal1 = sin(time*2*pi*freq);  %Premier signal (modifiez à votre guise)
+
+signal2 = sin(time*2*pi*freq)./(time.*time); %Second signal (modifiez à votre guise)
+
+signal3 = sin(time*2*pi*freq) .* (time ./40); %Troisième signal (modifiez à votre guise)    
+
+vecteur = [ signal1' signal2' signal3'];  %Création du signal total
 
 
 wavwrite(vecteur, sps, bps, 'audio.wav');   %Ecriture du fichier son
