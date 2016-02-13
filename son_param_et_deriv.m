@@ -2,74 +2,83 @@
 
 %Un sample est un "point" du graphe de l'onde sonore
 
-bps = 16;       % bits per sample (précision des samples)
+bps = 16;       % bits per sample (pr�cision des samples)
 sps = 8000;     % sample rate (samples/s)
-nsecs = 4;      % durée du son
+nsecs = 5;      % dur�e du son
 
-nsamples = sps*nsecs;  %Pas d'échantillonage 
+nsamples = sps*nsecs;  %Pas d'�chantillonage 
 
-time = linspace(0, nsecs, nsamples); %Création de l'axe temps
+time = linspace(0, nsecs, nsamples); %Cr�ation de l'axe temps
 
 fin = columns(time);
 
 
-%Paramètres miroirs:
+%Param�tres miroirs:
 
 alpha = pi/4; %Angle miroir1 - verticale
 beta = pi/4; %Angle miroir2 - verticale
 gamma = pi/6; %Inclinaison dispositif
-D = 2.5;  %Distance miroir2 - écran
+D = 2.5;  %Distance miroir2 - �cran                                     (m)
 
-%Paramètres dynamiques:
+%Param�tres dynamiques:
 
-In1 = 10; %Inertie du miroir1 selon son axe de rotation
-In2 = 10; %Inertie du miroir2 selon son axe de rotation
-r1 = 0.2; %Rayon spire bobinage galvo1
-r2 = 0.2; %Rayon spire bobinage galvo2
-n1 = 10; %Densité linéique bobinage galvo1
-n2 = 10; %Densité linéique bobinage galvo2
-Ba1 = 5; %Champ aimant permanent galvo1
-Ba2 = 5; %Champ aimant permanent galvo2
-Br1 = 7; %Champ magnétique rotor1
-Br2 = 7; %Champ magnaatique rotor2
+In1 = 10;  %Inertie du miroir1 selon son axe de rotation          (kg * m�)
+In2 = 10;  %Inertie du miroir2 selon son axe de rotation          (kg * m�)
+r1 = 0.2;  %Rayon spire bobinage galvo1                                 (m)
+r2 = 0.2;  %Rayon spire bobinage galvo2                                 (m)
+N1 = 200;  %Nombre de spires par bobine  galvo1 
+N2 = 200;  %Nombre de spires par bobine  galvo2
+k1 = 5;    %Constante de raideur ressort galvo1                       (N*m)
+k2 = 5;    %Constante de raideur ressort galvo2                       (N*m)
+Br1 = 7;   %Champ magn�tique rotor1                                     (T)
+Br2 = 7;   %Champ magn�tique rotor2                                     (T)
+Vrot1 = 5; %Volume total rotor1                                       (m^3)
+Vrot2 = 5; %Volume total rotor2                                       (m^3)
+c1 = 0;    %Coefficient de frottement dynamique galvo1              (N*M*s)
+c2 = 0;    %Coefficient de frottement dynamique galvo1              (N*M*s)
 
 
 
 
+%Param�tres circuits:
 
-%Paramètres circuits:
+%{
 
-m1 = 2;  %Moment magnétique du miroir 1
-m2 = 2;  %Moment magnétique du miroir 2
+Inutile en r�gime stationnaire:
+
 L1 = 5;  %Inductance galvo1
 L2 = 5;  %Inductance galvo2
-R1 = 1;  %Résistance galvo1
-R2 = 1;  %Résistance galvo2
-S1 = 1;  %Surface subissant le flux magnétique dans le galvo1
-S2 = 1;  %Surface subissant le flux magnétique dans le galvo2
+R1 = 1;  %R�sistance galvo1
+R2 = 1;  %R�sistance galvo2
+S1 = 1;  %Surface subissant le flux magn�tique dans le galvo1
+S2 = 1;  %Surface subissant le flux magn�tique dans le galvo2
 G1 = 1;  %Gain ampli op1
 G2 = 1;  %Gain ampli op2
 
-mu0 = 4*pi*10^(-7);  %Permitivité relative du vide 
+%}
+
+Rm1 = 5; %R�sistance d�terminante 1 (Ohm)
+Rm2 = 5; %R�sistance d�terminante 2 (Ohm)
+mu0 = 4*pi*10^(-7);  %Permitivit� relative du vide 
 
 
-%Paramétrisation de la courbe
+%Param�trisation de la courbe
 
 
-x = cos(2*pi*440*time);
-y = sin(2*pi*440*time);
+x = cos(2*pi*40*time);
+y = sin(2*pi*40*time);
 
 
 
-%Evolution temporelle des deux angles (résultats cinématique miroirs):
+%Evolution temporelle des deux angles (r�sultats cin�matique miroirs):
 
 theta1 = (cos(gamma)/2*D) *x;
 theta2 = (((cos(gamma))^2)/2*D) *y;  
 
 
-%Evolution temporelle des intensités dans les galvos (résultats dynamique):
+%Evolution temporelle des intensit�s dans les galvos (r�sultats dynamique):
 
-%Calcul des dérivées premières (approximations):
+%Calcul des d�riv�es premi�res (approximations):
 
 d1_theta1 = zeros(1,fin);
 d1_theta2 = zeros(1,fin);
@@ -90,7 +99,7 @@ d1_theta2(1,i) = d2/h;
 end
 
 
-%Calcul des dérivées secondes (approximations):
+%Calcul des d�riv�es secondes (approximations):
 
 d2_theta1 = zeros(1,fin);
 d2_theta2 = zeros(1,fin);
@@ -111,18 +120,23 @@ d2_theta2(1,i) = d2/h;
 end
 
 
-%Définition des intensités:
+%D�finition des intensit�s:
 
-C1 = (r1*(5/4)^(3/2))./(mu0*n1*cos(theta1));
-I1 = C1.*(Ba1*sin(theta1)- In1*d2_theta1*mu0/(Br1*L1*S1));                         
+C1 = r1 ./ 2* Br1 * Vrot1 * N1 * cos(theta1)*(4/5)^(3/2);
+I1 = C1.*(In1*d2_theta1 + c1*d1_theta1 + k1*theta1);                         
 
-C2 = (r2*(5/4)^(3/2))./(mu0*n2*cos(theta2));
-I2 = C2.*(Ba2*sin(theta2)- In2*d2_theta2*mu0/(Br2*L2*S2));
+C2 = r2 ./ 2* Br2 * Vrot2 * N2 * cos(theta2)*(4/5)^(3/2);
+I2 = C2.*(In2*d2_theta2 + c2*d1_theta2 + k2*theta2);
 
 
-%Signaux à envoyer (résultats résolution circuits):
+%Signaux �� envoyer (r�sultats r�solution circuits):
 
-%Calcul des dérivées premières (approximations):
+
+%{
+
+Potentiellement inutile si on simplifie l'ED du crcuit
+
+%Calcul des d�riv�es premi�res (approximations):
 
 d1_I1 = zeros(1,fin);
 d1_I2 = zeros(1,fin);
@@ -142,12 +156,13 @@ d1_I2(1,i) = d2/h;
 
 end
 
+%}
 
 %Sauvegarde des signaux
 
-signal1 = (L1*d1_I1 + R1*I1)/G1;  %Signal galvo1
+signal1 = Rm1 * I1 ;  %Signal galvo1
 
-signal2 = (L2*d1_I2 + R2*I2)/G2;  %Signal galvo2
+signal2 = Rm2 * I2 ;  %Signal galvo2
 
 %Normalisation des signaux (valeurs en output entre 0 et 1)
 
@@ -157,7 +172,7 @@ signal1 = signal1/M1;
 signal2 = signal2/M2;
 
 
-vecteur = [signal1'  signal2'];  %Création de la matrice contenant les signaux
+vecteur = [signal1'  signal2'];  %Cr�ation de la matrice contenant les signaux
 
 
 wavwrite(vecteur, sps, bps, 'audio.wav');   %Ecriture du fichier sons
